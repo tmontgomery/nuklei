@@ -24,7 +24,7 @@
     <version>0.1-SNAPSHOT</version>
 
     <name>Nuklei</name>
-    <url>http://todd.montgomery@stash.kaazing.wan/scm/nuk/nuklei.git</url>
+    <url>http://stash.kaazing.wan/scm/nuk/nuklei.git</url>
     <description>
       High Performance nucleus
     </description>

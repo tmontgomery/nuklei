@@ -8,15 +8,15 @@ public interface Nukleus
     /**
      * Start nukleus
      */
-    public void start();
+    void start();
 
     /**
      * Process a message
      */
-    public void process();
+    void process();
 
     /**
      * Close down nukleus
      */
-    public void close();
+    void close();
 }

@@ -3,10 +3,15 @@ package com.kaazing.nuklei.util;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 
 /**
+ * Various bit utilities
+ *
+ * Heavily adopted from SBE.
  */
 public class BitUtil
 {
@@ -89,4 +94,42 @@ public class BitUtil
         return new String(toHexByteArray(buffer), "UTF-8");
     }
 
+    /**
+     * Set the private address of direct {@link java.nio.ByteBuffer}.
+     *
+     * <b>Note:</b> It is assumed a cleaner is not responsible for reclaiming the memory under this buffer and that
+     * the caller is responsible for memory allocation and reclamation.
+     *
+     * @param byteBuffer to set the address on.
+     * @param address to set for the underlying buffer.
+     * @return the modified {@link java.nio.ByteBuffer}
+     */
+    public static ByteBuffer resetAddressAndCapacity(final ByteBuffer byteBuffer, final long address, final int capacity)
+    {
+        if (!byteBuffer.isDirect())
+        {
+            throw new IllegalArgumentException("Can only change address of direct buffers");
+        }
+
+        try
+        {
+            final Field addressField = Buffer.class.getDeclaredField("address");
+            addressField.setAccessible(true);
+            addressField.set(byteBuffer, Long.valueOf(address));
+
+            final Field capacityField = Buffer.class.getDeclaredField("capacity");
+            capacityField.setAccessible(true);
+            capacityField.set(byteBuffer, Integer.valueOf(capacity));
+
+            final Field cleanerField = byteBuffer.getClass().getDeclaredField("cleaner");
+            cleanerField.setAccessible(true);
+            cleanerField.set(byteBuffer, null);
+        }
+        catch (final Exception ex)
+        {
+            throw new RuntimeException(ex);
+        }
+
+        return byteBuffer;
+    }
 }

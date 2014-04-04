@@ -2,6 +2,10 @@
 
 High performance micro services framework
 
+Attribution(s)
+
+AtomicBuffer and AtomicBufferTest are taken from [SBE](https://github.com/real-logic/simple-binary-encoding).
+
 First class entities
 
 - __Nukleus__: interface for service. Also the service itself.
@@ -21,13 +25,14 @@ TODOs
 - Do Nuklei have multiple Bonds? May not be necessary if Bond is MPSC?
 - Bonds can have/hold state (equivalent to state per socket, e.g.)
 
-- Flush out AtomicBuffer for access to field types (from SBE CodecUtils) and for MPSC Bond
-- Flush out Elektron (flyweights)
-- Flush out MPSC Bond
+- ~~Flush out AtomicBuffer for access to field types (from SBE CodecUtils)~~
+- ~~Flush out Flyweights (Elektrons?)~~
+- Flush out AtomicBuffer additions for MPSC (Bond?)
+- Flush out MPSC (Bond?)
 - Flush out Runtimes
     - Dedicated Thread
     - Donated Thread
     - Dedicated Thread Pool
-    - Quasar-based
-- Benchmark Framework
+    - Quasar-based (?)
+- Benchmark Framework (JMH)
 - Flush out Kompound

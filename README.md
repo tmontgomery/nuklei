@@ -1,6 +1,6 @@
 # Nuklei
 
-High performance micro services framework
+Micro services toolset
 
 Attribution(s)
 

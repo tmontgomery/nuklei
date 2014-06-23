@@ -1,4 +1,4 @@
-package com.kaazing.nuklei.util;
+package com.kaazing.nuklei;
 
 import sun.misc.Unsafe;
 

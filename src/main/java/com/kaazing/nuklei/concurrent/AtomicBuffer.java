@@ -1,12 +1,13 @@
-package com.kaazing.nuklei.util;
+package com.kaazing.nuklei.concurrent;
 
+import com.kaazing.nuklei.BitUtil;
 import sun.misc.Unsafe;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /*
- * Based on SBE DirectBuffer
+ * Based on SBE DirectBuffer with additions.
  */
 public class AtomicBuffer
 {

@@ -1,5 +1,6 @@
-package com.kaazing.nuklei.util;
+package com.kaazing.nuklei;
 
+import com.kaazing.nuklei.concurrent.AtomicBuffer;
 import org.junit.Test;
 import org.junit.experimental.theories.DataPoint;
 import org.junit.experimental.theories.Theories;

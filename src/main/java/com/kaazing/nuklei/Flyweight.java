@@ -1,4 +1,6 @@
-package com.kaazing.nuklei.util;
+package com.kaazing.nuklei;
+
+import com.kaazing.nuklei.concurrent.AtomicBuffer;
 
 import java.nio.ByteOrder;
 

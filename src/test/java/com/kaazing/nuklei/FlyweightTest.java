@@ -1,5 +1,6 @@
-package com.kaazing.nuklei.util;
+package com.kaazing.nuklei;
 
+import com.kaazing.nuklei.concurrent.AtomicBuffer;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;

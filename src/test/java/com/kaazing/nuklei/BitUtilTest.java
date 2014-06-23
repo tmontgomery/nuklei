@@ -1,9 +1,9 @@
-package com.kaazing.nuklei.util;
+package com.kaazing.nuklei;
 
 import org.junit.Test;
 
-import static com.kaazing.nuklei.util.BitUtil.toHex;
-import static com.kaazing.nuklei.util.BitUtil.toHexByteArray;
+import static com.kaazing.nuklei.BitUtil.toHex;
+import static com.kaazing.nuklei.BitUtil.toHexByteArray;
 import static java.lang.Integer.valueOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;

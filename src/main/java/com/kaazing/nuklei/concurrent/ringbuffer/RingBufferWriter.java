@@ -13,15 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kaazing.nuklei;
+package com.kaazing.nuklei.concurrent.ringbuffer;
+
+import com.kaazing.nuklei.concurrent.AtomicBuffer;
 
 /**
- * Placeholder
+ * Writer Interface for a Ring Buffer
  */
-public class Nuklei
+public interface RingBufferWriter
 {
-    public static void main(final String[] args)
-    {
-        System.out.println("Hello");
-    }
+    /**
+     * Write a given message to the ring buffer.
+     *
+     * @param typeId for the message
+     * @param buffer of the message to write
+     * @param offset of the message within the buffer
+     * @param length of the message in bytes
+     * @return whether write was successful or not. If not successful, should be retried.
+     */
+    boolean write(final int typeId, final AtomicBuffer buffer, final int offset, final int length);
 }

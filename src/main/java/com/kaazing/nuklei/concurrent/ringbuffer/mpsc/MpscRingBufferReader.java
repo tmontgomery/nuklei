@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kaazing.nuklei;
+package com.kaazing.nuklei.concurrent.ringbuffer.mpsc;
+
+import com.kaazing.nuklei.concurrent.ringbuffer.RingBufferReader;
 
 /**
- * Placeholder
+ * Multiple Publisher, Single Consumer Ring Buffer Reader
  */
-public class Nuklei
+public class MpscRingBufferReader implements RingBufferReader
 {
-    public static void main(final String[] args)
+    /** {@inheritDoc} */
+    public int read(final ReadHandler handler, final int limit)
     {
-        System.out.println("Hello");
+        return 0;
     }
 }

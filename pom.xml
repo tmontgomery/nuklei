@@ -11,10 +11,9 @@
     <name>Nuklei</name>
     <url>http://stash.kaazing.wan/scm/nuk/nuklei.git</url>
     <description>
-      High Performance nucleus
+      Micro-services toolkit
     </description>
 
-    <!-- temporary license -->
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -118,7 +117,7 @@
                 <version>2.9.1</version>
                 <configuration>
                     <doctitle><![CDATA[<h1>Nuklei</h1>]]></doctitle>
-                    <bottom><![CDATA[<i>Copyright &#169; 2014 Kaazing, Inc. All Rights Reserved.</i>]]></bottom>
+                    <bottom><![CDATA[<i>Copyright &#169; 2014 Kaazing Corporation. All Rights Reserved.</i>]]></bottom>
                 </configuration>
             </plugin>
             <plugin>

@@ -1,3 +1,18 @@
+/*
+ * Copyright 2014 Kaazing Corporation, All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.kaazing.nuklei.concurrent;
 
 import com.kaazing.nuklei.BitUtil;
@@ -7,7 +22,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /*
- * Based on SBE DirectBuffer with additions.
+ * Based on SBE DirectBuffer supplemented with atomic operations, etc.
  */
 public class AtomicBuffer
 {
@@ -222,6 +237,32 @@ public class AtomicBuffer
     }
 
     /**
+     * Get value of long value with volatile semantics
+     *
+     * LoadLoad
+     *
+     * @param index of the long value in the buffer
+     * @return value of the long value with volatile semantics
+     */
+    public long getLongVolatile(final int index)
+    {
+        return UNSAFE.getLongVolatile(byteArray, addressOffset + index);
+    }
+
+    /**
+     * Atomically compare and swap long integer values
+     *
+     * @param index of the long value in the buffer
+     * @param expectedValue of the long value
+     * @param updatedValue to replace long value with
+     * @return indication of success or failure
+     */
+    public boolean compareAndSwapLong(final int index, final long expectedValue, final long updatedValue)
+    {
+        return UNSAFE.compareAndSwapLong(byteArray, addressOffset + index, expectedValue, updatedValue);
+    }
+
+    /**
      * Get the value at a given index.
      *
      * @param index in bytes from which to get.
@@ -240,6 +281,17 @@ public class AtomicBuffer
     }
 
     /**
+     * Put a value to a given index using native order.
+     *
+     * @param index in bytes for where to put.
+     * @param value to be written
+     */
+    public void putInt(final int index, final int value)
+    {
+        UNSAFE.putInt(byteArray, addressOffset + index, value);
+    }
+
+    /**
      * Put a value to a given index.
      *
      * @param index in bytes for where to put.
@@ -255,6 +307,19 @@ public class AtomicBuffer
         }
 
         UNSAFE.putInt(byteArray, addressOffset + index, bits);
+    }
+
+    /**
+     * Put a value to a given index with ordered semantics.
+     *
+     * StoreLoad
+     *
+     * @param index in bytes for where to put.
+     * @param value for at a given index
+     */
+    public void putIntOrdered(final int index, final int value)
+    {
+        UNSAFE.putOrderedInt(byteArray, addressOffset + index, value);
     }
 
     /**
@@ -419,7 +484,8 @@ public class AtomicBuffer
      */
     public int getBytes(final int index, final byte[] dst, final int offset, final int length)
     {
-        final int count = Math.min(length, capacity - index);
+        int count = Math.min(length, capacity - index);
+        count = Math.min(count, dst.length - offset);
         UNSAFE.copyMemory(byteArray, addressOffset + index, dst, BYTE_ARRAY_OFFSET + offset, count);
 
         return count;
@@ -459,6 +525,24 @@ public class AtomicBuffer
     }
 
     /**
+     * Get bytes from the underlying buffer into a supplied {@link AtomicBuffer}
+     *
+     * @param index  in the underlying buffer to start from.
+     * @param dst    into which the bytes will be copied.
+     * @param offset in the supplied buffer to start the copy
+     * @param length of the supplied buffer to use.
+     * @return count of bytes copied.
+     */
+    public int getBytes(final int index, final AtomicBuffer dst, final int offset, final int length)
+    {
+        int count = Math.min(length, capacity - index);
+        count = Math.min(count, dst.capacity - offset);
+        UNSAFE.copyMemory(byteArray, addressOffset + index, dst.byteArray, dst.addressOffset + offset, count);
+
+        return count;
+    }
+
+    /**
      * Put an array of src into the underlying buffer.
      *
      * @param index in the underlying buffer to start from.
@@ -481,7 +565,8 @@ public class AtomicBuffer
      */
     public int putBytes(final int index, final byte[] src, final int offset, final int length)
     {
-        final int count = Math.min(length, capacity - index);
+        int count = Math.min(length, capacity - index);
+        count = Math.min(count, src.length - offset);
         UNSAFE.copyMemory(src, BYTE_ARRAY_OFFSET + offset, byteArray, addressOffset + index,  count);
 
         return count;
@@ -518,5 +603,34 @@ public class AtomicBuffer
         srcBuffer.position(srcBuffer.position() + count);
 
         return count;
+    }
+
+    /**
+     * Put bytes from an {@link AtomicBuffer} into the underlying buffer.
+     *
+     * @param index  in the underlying buffer to start from.
+     * @param src    to be copied to the underlying buffer.
+     * @param offset in the supplied buffer to begin the copy.
+     * @param length of the supplied buffer to copy.
+     * @return count of bytes copied.
+     */
+    public int putBytes(final int index, final AtomicBuffer src, final int offset, final int length)
+    {
+        return src.getBytes(offset, this, index, length);
+    }
+
+    // TODO: move and add test
+
+    /**
+     * Put a value to a given index with ordered semantics.
+     *
+     * StoreLoad
+     *
+     * @param index in bytes for where to put.
+     * @param value for at a given index
+     */
+    public void putLongOrdered(final int index, final int value)
+    {
+        UNSAFE.putOrderedLong(byteArray, addressOffset + index, value);
     }
 }

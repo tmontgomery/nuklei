@@ -15,6 +15,7 @@
  */
 package com.kaazing.nuklei.concurrent.ringbuffer.mpsc;
 
+import com.kaazing.nuklei.concurrent.AtomicBuffer;
 import com.kaazing.nuklei.concurrent.ringbuffer.RingBufferReader;
 
 /**
@@ -22,9 +23,101 @@ import com.kaazing.nuklei.concurrent.ringbuffer.RingBufferReader;
  */
 public class MpscRingBufferReader implements RingBufferReader
 {
+    private final AtomicBuffer buffer;
+    private final int mask;
+    private final int tailCounterIndex;
+    private final int headCounterIndex;
+    private final int capacity;
+
+    /**
+     * Initialize ring buffer reader with underling ring buffer in the {@link AtomicBuffer}
+     *
+     * @param buffer to use as the underlying ring buffer.
+     */
+    public MpscRingBufferReader(final AtomicBuffer buffer)
+    {
+        MpscRingBuffer.checkAtomicBufferCapacity(buffer);
+
+        this.buffer = buffer;
+        this.capacity = buffer.capacity() - MpscRingBuffer.STATE_TRAILER_SIZE;
+        this.mask = capacity - 1;
+        this.tailCounterIndex = capacity + MpscRingBuffer.TAIL_RELATIVE_OFFSET;
+        this.headCounterIndex = capacity + MpscRingBuffer.HEAD_RELATIVE_OFFSET;
+    }
+
     /** {@inheritDoc} */
     public int read(final ReadHandler handler, final int limit)
     {
-        return 0;
+        final long tail = getTailVolatile();
+        final long head = getHeadVolatile();
+        final int available = (int)(tail - head);
+        int messagesRead = 0;
+
+        if (available > 0)
+        {
+            final int headIndex = (int)head & mask;
+            final int contiguousBlockSize = Math.min(available, capacity - headIndex);
+            int bytesRead = 0;
+
+            try
+            {
+                while ((bytesRead < contiguousBlockSize) && (messagesRead < limit))
+                {
+                    final int messageIndex = headIndex + bytesRead;
+                    final int messageLength = waitForMsgLengthVolatile(messageIndex);
+
+                    final int msgTypeId = readMsgTypeId(messageIndex);
+
+                    bytesRead += messageLength;
+
+                    if (MpscRingBuffer.PADDING_MSG_TYPE_ID != msgTypeId)
+                    {
+                        ++messagesRead;
+                        handler.onMessage(msgTypeId, buffer, messageIndex + MpscRingBuffer.HEADER_LENGTH,
+                                messageLength - MpscRingBuffer.HEADER_LENGTH);
+                    }
+                }
+            }
+            finally
+            {
+                buffer.setMemory(headIndex, bytesRead, (byte)0);
+                putHeadOrdered(head + bytesRead);
+            }
+        }
+
+        return messagesRead;
+    }
+
+    private long getHeadVolatile()
+    {
+        return buffer.getLongVolatile(headCounterIndex);
+    }
+
+    private long getTailVolatile()
+    {
+        return buffer.getLongVolatile(tailCounterIndex);
+    }
+
+    private int waitForMsgLengthVolatile(final int messageIndex)
+    {
+        int length;
+
+        do
+        {
+            length = buffer.getIntVolatile(messageIndex + MpscRingBuffer.HEADER_MSG_LENGTH_OFFSET);
+        }
+        while (0 == length);
+
+        return length;
+    }
+
+    private int readMsgTypeId(final int messageIndex)
+    {
+        return buffer.getInt(messageIndex + MpscRingBuffer.HEADER_MSG_TYPE_OFFSET);
+    }
+
+    private void putHeadOrdered(final long value)
+    {
+        buffer.putLongOrdered(headCounterIndex, value);
     }
 }

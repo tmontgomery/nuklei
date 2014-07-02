@@ -108,6 +108,16 @@ public class AtomicBufferTest
     }
 
     @Theory
+    public void shouldPutLongOrderedToNativeBuffer(final AtomicBuffer buffer)
+    {
+        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+
+        buffer.putLongOrdered(INDEX, LONG_VALUE);
+
+        assertThat(duplicateBuffer.getLong(INDEX), is(LONG_VALUE));
+    }
+
+    @Theory
     public void shouldCompareAndSwapLongToNativeBuffer(final AtomicBuffer buffer)
     {
         final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
@@ -130,6 +140,16 @@ public class AtomicBufferTest
     }
 
     @Theory
+    public void shouldGetIntFromNativeBuffer(final AtomicBuffer buffer)
+    {
+        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+
+        duplicateBuffer.putInt(INDEX, INT_VALUE);
+
+        assertThat(buffer.getInt(INDEX), is(INT_VALUE));
+    }
+
+    @Theory
     public void shouldPutIntToBuffer(final AtomicBuffer buffer, final ByteOrder byteOrder)
     {
         final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(byteOrder);
@@ -147,6 +167,16 @@ public class AtomicBufferTest
         buffer.putInt(INDEX, INT_VALUE);
 
         assertThat(duplicateBuffer.getInt(INDEX), is(INT_VALUE));
+    }
+
+    @Theory
+    public void shouldGetIntVolatileFromNativeBuffer(final AtomicBuffer buffer)
+    {
+        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+
+        duplicateBuffer.putInt(INDEX, INT_VALUE);
+
+        assertThat(buffer.getIntVolatile(INDEX), is(INT_VALUE));
     }
 
     @Theory
@@ -534,5 +564,19 @@ public class AtomicBufferTest
         final int result = buffer.putBytes(INDEX, testBytes, 0, 20);
 
         assertThat(result, is(15));
+    }
+
+    @Theory
+    public void shouldSetMemory(final AtomicBuffer buffer, final ByteOrder byteOrder)
+    {
+        final byte[] testBytes = "ooooooooooo".getBytes();
+
+        buffer.setMemory(0, testBytes.length, testBytes[0]);
+
+        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(byteOrder);
+        final byte[] buff = new byte[testBytes.length];
+        duplicateBuffer.get(buff);
+
+        assertThat(buff, is(testBytes));
     }
 }

@@ -250,6 +250,19 @@ public class AtomicBuffer
     }
 
     /**
+     * Put a value to a given index with ordered semantics.
+     *
+     * StoreLoad
+     *
+     * @param index in bytes for where to put.
+     * @param value for at a given index
+     */
+    public void putLongOrdered(final int index, final long value)
+    {
+        UNSAFE.putOrderedLong(byteArray, addressOffset + index, value);
+    }
+
+    /**
      * Atomically compare and swap long integer values
      *
      * @param index of the long value in the buffer
@@ -260,6 +273,18 @@ public class AtomicBuffer
     public boolean compareAndSwapLong(final int index, final long expectedValue, final long updatedValue)
     {
         return UNSAFE.compareAndSwapLong(byteArray, addressOffset + index, expectedValue, updatedValue);
+    }
+
+    /**
+     * Get the value at a given index using native order.
+     *
+     * @param index in bytes from which to get.
+
+     * @return the value for at a given index
+     */
+    public int getInt(final int index)
+    {
+        return UNSAFE.getInt(byteArray, addressOffset + index);
     }
 
     /**
@@ -307,6 +332,19 @@ public class AtomicBuffer
         }
 
         UNSAFE.putInt(byteArray, addressOffset + index, bits);
+    }
+
+    /**
+     * Get the value at a given index with volatile semantics.
+     *
+     * LoadLoad
+     *
+     * @param index in bytes from which to get.
+     * @return the value for at a given index
+     */
+    public int getIntVolatile(final int index)
+    {
+        return UNSAFE.getIntVolatile(byteArray, addressOffset + index);
     }
 
     /**
@@ -619,18 +657,15 @@ public class AtomicBuffer
         return src.getBytes(offset, this, index, length);
     }
 
-    // TODO: move and add test
-
     /**
-     * Put a value to a given index with ordered semantics.
+     * Set a region of memory to a given byte value.
      *
-     * StoreLoad
-     *
-     * @param index in bytes for where to put.
-     * @param value for at a given index
+     * @param index in bytes for where to start setting.
+     * @param length of the region in bytes
+     * @param value each byte of the region will be set to.
      */
-    public void putLongOrdered(final int index, final int value)
+    public void setMemory(final int index, final int length, final byte value)
     {
-        UNSAFE.putOrderedLong(byteArray, addressOffset + index, value);
+        UNSAFE.setMemory(byteArray, addressOffset + index, length, value);
     }
 }

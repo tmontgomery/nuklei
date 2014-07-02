@@ -50,7 +50,7 @@ public class MpscRingBuffer
 
     public static void checkAtomicBufferCapacity(final AtomicBuffer buffer)
     {
-        final int capacity = buffer.capacity();
+        final int capacity = buffer.capacity() - STATE_TRAILER_SIZE;
 
         if (capacity < 2 || Integer.bitCount(capacity) > 1)
         {

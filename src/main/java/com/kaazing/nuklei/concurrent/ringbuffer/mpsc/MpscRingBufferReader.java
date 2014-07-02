@@ -18,6 +18,8 @@ package com.kaazing.nuklei.concurrent.ringbuffer.mpsc;
 import com.kaazing.nuklei.concurrent.AtomicBuffer;
 import com.kaazing.nuklei.concurrent.ringbuffer.RingBufferReader;
 
+import static com.kaazing.nuklei.BitUtil.align;
+
 /**
  * Multiple Publisher, Single Consumer Ring Buffer Reader
  */
@@ -68,7 +70,7 @@ public class MpscRingBufferReader implements RingBufferReader
 
                     final int msgTypeId = readMsgTypeId(messageIndex);
 
-                    bytesRead += messageLength;
+                    bytesRead += align(messageLength, MpscRingBuffer.MESSAGE_ALIGNMENT);
 
                     if (MpscRingBuffer.PADDING_MSG_TYPE_ID != msgTypeId)
                     {
@@ -80,7 +82,7 @@ public class MpscRingBufferReader implements RingBufferReader
             }
             finally
             {
-                buffer.setMemory(headIndex, bytesRead, (byte)0);
+                buffer.setMemory(headIndex, bytesRead, (byte) 0);
                 putHeadOrdered(head + bytesRead);
             }
         }

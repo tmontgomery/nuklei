@@ -48,6 +48,16 @@ public class MpscRingBufferWriter implements RingBufferWriter
         this.headCounterIndex = capacity + MpscRingBuffer.HEAD_RELATIVE_OFFSET;
     }
 
+    /**
+     * Return capacity of ring buffer in bytes.
+     *
+     * @return capacity of ring buffer
+     */
+    public int capacity()
+    {
+        return capacity;
+    }
+
     /** {@inheritDoc} */
     public boolean write(final int typeId, final AtomicBuffer buffer, final int offset, final int length)
     {
@@ -65,7 +75,7 @@ public class MpscRingBufferWriter implements RingBufferWriter
         writeMsgTypeId(messageIndex, typeId);
         writeMsg(messageIndex, buffer, offset, length);
         // TODO: write sequence number for tail value (ordered) - if needed for spy
-        writeMsgLengthOrdered(messageIndex, length);
+        writeMsgLengthOrdered(messageIndex, length + MpscRingBuffer.HEADER_LENGTH);
 
         return true;
     }
@@ -81,7 +91,7 @@ public class MpscRingBufferWriter implements RingBufferWriter
         do
         {
             tail = getTailVolatile();
-            final int availableCapacity = capacity - (int)(head - tail);
+            final int availableCapacity = capacity - (int)(tail - head);
 
             if (requiredCapacity > availableCapacity)
             {
@@ -136,14 +146,13 @@ public class MpscRingBufferWriter implements RingBufferWriter
         buffer.putInt(messageIndex + MpscRingBuffer.HEADER_MSG_TYPE_OFFSET, typeId);
     }
 
-    private void writeMsg(final int messageIndex, final AtomicBuffer buffer, final int offset, final int length)
+    private void writeMsg(final int messageIndex, final AtomicBuffer srcBuffer, final int offset, final int length)
     {
-        buffer.putBytes(messageIndex + MpscRingBuffer.HEADER_LENGTH, buffer, offset, length);
+        buffer.putBytes(messageIndex + MpscRingBuffer.HEADER_LENGTH, srcBuffer, offset, length);
     }
 
     private void writeMsgLengthOrdered(final int messageIndex, final int length)
     {
-        buffer.putIntOrdered(messageIndex + MpscRingBuffer.HEADER_MSG_LENGTH_OFFSET,
-                length + MpscRingBuffer.HEADER_LENGTH);
+        buffer.putIntOrdered(messageIndex + MpscRingBuffer.HEADER_MSG_LENGTH_OFFSET, length);
     }
 }

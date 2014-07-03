@@ -76,6 +76,8 @@ public class MpscRingBufferConcurrencyTest
 
         final RingBufferReader.ReadHandler handler = (typeId, buffer, index, length) ->
         {
+            assertThat(length, is(2 * BitUtil.SIZE_OF_INT));
+
             final int id = buffer.getInt(index);
             final int rep = buffer.getInt(index + BitUtil.SIZE_OF_INT);
 

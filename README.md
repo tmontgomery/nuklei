@@ -21,7 +21,7 @@ limitations under the License.
 ## Attributions
 
 AtomicBuffer and AtomicBufferTest are taken from [SBE](https://github.com/real-logic/simple-binary-encoding).
-Queuing mechanism highly inspired by [Martin Thompson](https://github.com/mjpt777),
+Queuing mechanism hugely inspired by [Martin Thompson](https://github.com/mjpt777),
 [Mike Barker](https://github.com/mikeb01),
 [Gil Tene](https://github.com/giltene), [Nitsan Wakart](https://github.com/nitsanw), and discussions on the
 [Mechanical Sympathy Google Group](https://groups.google.com/forum/#!forum/mechanical-sympathy)
@@ -33,35 +33,38 @@ You require the following to build Nuklei:
 * Latest stable [Oracle JDK 8](http://www.oracle.com/technetwork/java/)
 * 3.0.4 or later of [Maven](http://maven.apache.org/)
 
+To build and install to local maven repository.
+
     $ mvn install
 
-## First class entities
+## Components
 
+- __AtomicBuffer__: common interface over `byte[]`, `ByteBuffer` (including `MappedByteBuffer`),
+and heap-allocated memory. Port of SBE DirectBuffer with additions for atomic operations.
 - __Nukleus__: interface for service. Also the service itself.
-- __Bond__: multiple-producer-single-consumer (MPSC) queue/mailbox between Nuklei.
-- __Elektron__: messages sent to a Nuklei. Nuklei share Elektrons through Bonds.
-- __Kompound__: collection of interconnected Nuklei. Also the layout of the collection.
-- __Molekule__: ?? (maybe use this instead of Kompound?)
-- __Partikle__: ??
+- multiple-producer-single-consumer (MPSC) ring buffer between Nuklei (suitable for inter-process communications)
+with Spying support.
+- multiple-producer-single-consumer (MPSC) queue between Nuklei (suitable for in-process communications) with
+Spying support.
+- __Spy__: means to attach a "sniffer" to a communication channel to spy on the data exchange. May be lossy. Similar to
+`tcpdump`.
+- __Flyweight__: overlay of structured layout over an `AtomicBuffer`.
+- __Runtime__: runtime around a Nukleus. Might be dedicated thread, or donated thread, pooled thread, FJP, etc.
+- __Scheduler__: scheduling mechanism for multple Nuklei.
 
-Other entities
+## TODOs
 
-- __Runtime__: runtime around a Nukleus. Might be dedicated thread, or donated thread, pooled thread, or Quasar-type.
-- __?__: state per Bond
-
-TODOs
-
-- Do Nuklei have multiple Bonds? May not be necessary if Bond is MPSC?
-- Bonds can have/hold state (equivalent to state per socket, e.g.)
-
-- ~~Flush out AtomicBuffer for access to field types (from SBE CodecUtils)~~
-- ~~Flush out Flyweights (Elektrons?)~~
-- Flush out AtomicBuffer additions for MPSC (Bond?)
-- Flush out MPSC (Bond?)
-- Flush out Runtimes
-    - Dedicated Thread
-    - Donated Thread
-    - Dedicated Thread Pool
-    - Quasar-based (?)
-- Benchmark Framework (JMH)
-- Flush out Kompound
+- Add MpscConcurrentArrayQueue (JCTools version with Spy support added) with ring buffer-style interface
+- JMH benchmarks for MPSC primitives 
+- Flush out Runtimes/Schedulers
+    - Dedicated Thread, Manual Assignment
+    - FJP
+- Robin Hood HashMap for Dictionary-style state handling within Nuklei
+- Pre-packaged Nuklei
+    - TCP Acceptor
+    - TCP Connector
+    - TCP Reader
+    - TCP Writer
+- Standard Parsers/Flyweights
+    - WebSocket (RFC 6455) via HTTP/1.1 Upgrade
+    - CoAP (RFC 7252) over WebSocket

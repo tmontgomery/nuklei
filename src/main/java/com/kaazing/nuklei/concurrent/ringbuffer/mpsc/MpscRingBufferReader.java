@@ -47,6 +47,16 @@ public class MpscRingBufferReader implements RingBufferReader
         this.headCounterIndex = capacity + MpscRingBuffer.HEAD_RELATIVE_OFFSET;
     }
 
+    /**
+     * Return capacity of ring buffer in bytes.
+     *
+     * @return capacity of ring buffer
+     */
+    public int capacity()
+    {
+        return capacity;
+    }
+
     /** {@inheritDoc} */
     public int read(final ReadHandler handler, final int limit)
     {

@@ -30,7 +30,7 @@ public class MpscRingBufferSpy implements RingBufferSpy
     private final int mask;
 
     /**
-     * Initialize ring buffer spy with underling ring buffer in the {@link AtomicBuffer}
+     * Initialize ring buffer spy with underlying ring buffer in the {@link AtomicBuffer}
      *
      * @param buffer to use as the underlying buffer.
      */

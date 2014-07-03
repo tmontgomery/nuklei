@@ -22,6 +22,7 @@ limitations under the License.
 
 AtomicBuffer and AtomicBufferTest are taken from [SBE](https://github.com/real-logic/simple-binary-encoding).
 Queuing mechanism highly inspired by [Martin Thompson](https://github.com/mjpt777),
+[Mike Barker](https://github.com/mikeb01),
 [Gil Tene](https://github.com/giltene), [Nitsan Wakart](https://github.com/nitsanw), and discussions on the
 [Mechanical Sympathy Google Group](https://groups.google.com/forum/#!forum/mechanical-sympathy)
 

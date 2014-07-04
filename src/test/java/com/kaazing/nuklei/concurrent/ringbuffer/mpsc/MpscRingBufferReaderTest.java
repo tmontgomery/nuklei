@@ -39,8 +39,6 @@ public class MpscRingBufferReaderTest
     private static final int HEAD_COUNTER_INDEX = CAPACITY + MpscRingBuffer.HEAD_RELATIVE_OFFSET;
     private static final int TAIL_COUNTER_INDEX = CAPACITY + MpscRingBuffer.TAIL_RELATIVE_OFFSET;
 
-    private final AtomicBuffer srcBuffer = new AtomicBuffer(new byte[1024]);
-
     private final AtomicBuffer buffer = mock(AtomicBuffer.class);
     private MpscRingBufferReader reader;
 
@@ -62,12 +60,12 @@ public class MpscRingBufferReaderTest
     public void shouldReadNothingWhenEmpty()
     {
         final long head = 0L;
-        final long tail = 0L;
+        final long tail = head;
 
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
 
-        final RingBufferReader.ReadHandler handler = (typeId, buffer, infex, length) -> fail("should not be called");
+        final RingBufferReader.ReadHandler handler = (typeId, buffer, index, length) -> fail("should not be called");
 
         assertThat(reader.read(handler, 1), is(0));
     }
@@ -81,7 +79,7 @@ public class MpscRingBufferReaderTest
         when(buffer.getLongVolatile(HEAD_COUNTER_INDEX)).thenReturn(head);
         when(buffer.getLongVolatile(TAIL_COUNTER_INDEX)).thenReturn(tail);
 
-        final RingBufferReader.ReadHandler handler = (typeId, buffer, infex, length) -> fail("should not be called");
+        final RingBufferReader.ReadHandler handler = (typeId, buffer, index, length) -> fail("should not be called");
 
         assertThat(reader.read(handler, Integer.MAX_VALUE), is(0));
     }

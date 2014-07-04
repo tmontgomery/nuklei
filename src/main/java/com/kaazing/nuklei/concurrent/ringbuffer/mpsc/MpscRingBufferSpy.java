@@ -43,7 +43,7 @@ public class MpscRingBufferSpy implements RingBufferSpy
         this.mask = capacity - 1;
         this.headCounterIndex = capacity + MpscRingBuffer.HEAD_RELATIVE_OFFSET;
 
-        this.head = getHeadVolatile();
+        this.head = headVolatile();
     }
 
     /** {@inheritDoc} */
@@ -52,7 +52,7 @@ public class MpscRingBufferSpy implements RingBufferSpy
         return 0;
     }
 
-    private long getHeadVolatile()
+    private long headVolatile()
     {
         return buffer.getLongVolatile(headCounterIndex);
     }

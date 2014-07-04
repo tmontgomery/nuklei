@@ -82,7 +82,7 @@ public class MpscRingBufferWriter implements RingBufferWriter
 
     private int claim(final int requiredCapacity)
     {
-        final long head = getHeadVolatile();
+        final long head = headVolatile();
         final int headIndex = (int)head & mask;
 
         long tail;
@@ -90,7 +90,7 @@ public class MpscRingBufferWriter implements RingBufferWriter
         int padding;
         do
         {
-            tail = getTailVolatile();
+            tail = tailVolatile();
             final int availableCapacity = capacity - (int)(tail - head);
 
             if (requiredCapacity > availableCapacity)
@@ -124,12 +124,12 @@ public class MpscRingBufferWriter implements RingBufferWriter
         return tailIndex;
     }
 
-    private long getHeadVolatile()
+    private long headVolatile()
     {
         return buffer.getLongVolatile(headCounterIndex);
     }
 
-    private long getTailVolatile()
+    private long tailVolatile()
     {
         return buffer.getLongVolatile(tailCounterIndex);
     }

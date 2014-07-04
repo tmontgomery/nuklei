@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.CyclicBarrier;
+import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -36,10 +37,12 @@ import static org.hamcrest.core.Is.is;
 @RunWith(Theories.class)
 public class MpscRingBufferConcurrencyTest
 {
+    private static final int NUM_MESSAGES_PER_WRITER = 10 * 1000 * 1000;
+
     private static final int MSG_TYPE_ID = 100;
-    private static final int NUM_WRITES_INDEX = 0;
+
+    private static final int NUM_WRITERS_INDEX = 0;
     private static final int CAPACITY_INDEX = 1;
-    private static final int REPS = 10 * 1000 * 1000;
 
     @DataPoint
     public static final int[] TWO_WRITERS_16K = { 2, 16 * 1024 };
@@ -57,9 +60,10 @@ public class MpscRingBufferConcurrencyTest
     @Test(timeout = 10000)
     public void shouldExchangeMessages(final int[] params) throws Exception
     {
-        final int reps = REPS;
-        final int numWriters = params[NUM_WRITES_INDEX];
+        final int numMessages = NUM_MESSAGES_PER_WRITER;
+        final int numWriters = params[NUM_WRITERS_INDEX];
         final int capacity = params[CAPACITY_INDEX];
+
         final CyclicBarrier goBarrier = new CyclicBarrier(numWriters);
 
         final AtomicBuffer atomicBuffer =
@@ -67,28 +71,26 @@ public class MpscRingBufferConcurrencyTest
 
         final MpscRingBufferReader reader = new MpscRingBufferReader(atomicBuffer);
 
-        for (int i = 0; i  < numWriters; i++)
-        {
-            new Thread(new Writer(atomicBuffer, i, goBarrier, reps)).start();
-        }
+        IntStream.range(0, numWriters).forEach((i) ->
+                new Thread(new Writer(atomicBuffer, goBarrier, i, numMessages)).start());
 
         final int[] counts = new int[numWriters];
 
         final RingBufferReader.ReadHandler handler = (typeId, buffer, index, length) ->
         {
+            assertThat(typeId, is(MSG_TYPE_ID));
             assertThat(length, is(2 * BitUtil.SIZE_OF_INT));
 
             final int id = buffer.getInt(index);
-            final int rep = buffer.getInt(index + BitUtil.SIZE_OF_INT);
+            final int messageNum = buffer.getInt(index + BitUtil.SIZE_OF_INT);
 
-            final int count = counts[id];
-            assertThat(rep, is(count));
+            assertThat(messageNum, is(counts[id]));
 
             counts[id]++;
         };
 
         int msgCount = 0;
-        while (msgCount < (reps * numWriters))
+        while (msgCount < (numMessages * numWriters))
         {
             final int readCount = reader.read(handler, Integer.MAX_VALUE);
 
@@ -100,22 +102,22 @@ public class MpscRingBufferConcurrencyTest
             msgCount += readCount;
         }
 
-        assertThat(msgCount, is(reps * numWriters));
+        assertThat(msgCount, is(numMessages * numWriters));
     }
 
     private static class Writer implements Runnable
     {
-        private final int id;
         private final CyclicBarrier goBarrier;
-        private final int reps;
         private final MpscRingBufferWriter writer;
+        private final int id;
+        private final int messages;
 
-        public Writer(final AtomicBuffer buffer, final int id, final CyclicBarrier goBarrier, final int reps)
+        public Writer(final AtomicBuffer buffer, final CyclicBarrier goBarrier, final int id, final int messages)
         {
-            this.id = id;
             this.goBarrier = goBarrier;
-            this.reps = reps;
             this.writer = new MpscRingBufferWriter(buffer);
+            this.id = id;
+            this.messages = messages;
         }
 
         public void run()
@@ -129,14 +131,14 @@ public class MpscRingBufferConcurrencyTest
             }
 
             final int messageLength = 2 * BitUtil.SIZE_OF_INT;
-            final int repsOffset = BitUtil.SIZE_OF_INT;
+            final int messageNumOffset = BitUtil.SIZE_OF_INT;
             final AtomicBuffer srcBuffer = new AtomicBuffer(new byte[64]);
 
             srcBuffer.putInt(0, id);
 
-            for (int i = 0; i < reps; i++)
+            for (int i = 0; i < messages; i++)
             {
-                srcBuffer.putInt(repsOffset, i);
+                srcBuffer.putInt(messageNumOffset, i);
 
                 while (!writer.write(MSG_TYPE_ID, srcBuffer, 0, messageLength))
                 {

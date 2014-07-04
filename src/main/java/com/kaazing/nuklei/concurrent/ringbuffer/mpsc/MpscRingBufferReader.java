@@ -60,8 +60,8 @@ public class MpscRingBufferReader implements RingBufferReader
     /** {@inheritDoc} */
     public int read(final ReadHandler handler, final int limit)
     {
-        final long tail = getTailVolatile();
-        final long head = getHeadVolatile();
+        final long tail = tailVolatile();
+        final long head = headVolatile();
         final int available = (int)(tail - head);
         int messagesRead = 0;
 
@@ -100,12 +100,12 @@ public class MpscRingBufferReader implements RingBufferReader
         return messagesRead;
     }
 
-    private long getHeadVolatile()
+    private long headVolatile()
     {
         return buffer.getLongVolatile(headCounterIndex);
     }
 
-    private long getTailVolatile()
+    private long tailVolatile()
     {
         return buffer.getLongVolatile(tailCounterIndex);
     }

@@ -25,10 +25,16 @@ public class MpscRingBuffer
 {
     /*
      * Trailer houses head and tail for the ring buffer, padded to cache lines to avoid false sharing
+     *
+     * Layout
+     * HEAD (long) = 8 bytes (padded to CACHE_LINE_SIZE)
+     * TAIL (long) = 8 bytes (padded to CACHE_LINE_SIZE)
+     * ID (long) = 8 bytes (padded to CACHE_LINE_SIZE)
      */
     public static final int TAIL_RELATIVE_OFFSET = 0;
     public static final int HEAD_RELATIVE_OFFSET = BitUtil.CACHE_LINE_SIZE;
-    public static final int STATE_TRAILER_SIZE = 2 * BitUtil.CACHE_LINE_SIZE;
+    public static final int ID_RELATIVE_OFFSET = 2 * BitUtil.CACHE_LINE_SIZE;
+    public static final int STATE_TRAILER_SIZE = 3 * BitUtil.CACHE_LINE_SIZE;
 
     /* padding message */
     public static final int PADDING_MSG_TYPE_ID = -1;

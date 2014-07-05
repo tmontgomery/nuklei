@@ -38,10 +38,12 @@ import static org.hamcrest.core.Is.is;
 public class MpscRingBufferConcurrencyTest
 {
     private static final int NUM_MESSAGES_PER_WRITER = 10 * 1000 * 1000;
+    private static final int NUM_IDS_PER_GENERATOR = 10 * 1000 * 1000;
 
     private static final int MSG_TYPE_ID = 100;
 
     private static final int NUM_WRITERS_INDEX = 0;
+    private static final int NUM_GENERATORS_INDEX = 0;
     private static final int CAPACITY_INDEX = 1;
 
     @DataPoint
@@ -55,6 +57,57 @@ public class MpscRingBufferConcurrencyTest
 
     @DataPoint
     public static final int[] ONE_WRITER_64K = { 1, 64 * 1024 };
+
+    @Theory
+    @Test(timeout = 1000)
+    public void shouldGenerateIds(final int[] params) throws Exception
+    {
+        final int numIds = NUM_IDS_PER_GENERATOR;
+        final int numGenerators = params[NUM_GENERATORS_INDEX];
+        final int capacity = params[CAPACITY_INDEX];
+        final Thread[] threads = new Thread[numGenerators];
+
+        final CyclicBarrier goBarrier = new CyclicBarrier(numGenerators);
+
+        final AtomicBuffer atomicBuffer =
+                new AtomicBuffer(ByteBuffer.allocateDirect(capacity + MpscRingBuffer.STATE_TRAILER_SIZE));
+
+        final Runnable generatorRun = () ->
+        {
+            final MpscRingBufferIdGenerator generator = new MpscRingBufferIdGenerator(atomicBuffer);
+
+            try
+            {
+                goBarrier.await();
+            }
+            catch (final Exception ex)
+            {
+            }
+
+            IntStream.range(0, numIds).forEach((j) -> generator.nextId());
+        };
+
+        IntStream.range(0, numGenerators).forEach((i) ->
+        {
+            threads[i] = new Thread(generatorRun);
+            threads[i].start();
+        });
+
+        IntStream.range(0, numGenerators).forEach((i) ->
+        {
+            try
+            {
+                threads[i].join();
+            }
+            catch (final Exception ex)
+            {
+            }
+        });
+
+        final MpscRingBufferIdGenerator generator = new MpscRingBufferIdGenerator(atomicBuffer);
+
+        assertThat(generator.nextId(), is((long)(numGenerators * numIds)));
+    }
 
     @Theory
     @Test(timeout = 10000)

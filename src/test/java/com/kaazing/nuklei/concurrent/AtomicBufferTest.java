@@ -130,6 +130,17 @@ public class AtomicBufferTest
     }
 
     @Theory
+    public void shouldGetAndAddLongToNativeBuffer(final AtomicBuffer buffer)
+    {
+        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+
+        duplicateBuffer.putLong(INDEX, LONG_VALUE);
+
+        assertThat(buffer.getAndAddLong(INDEX, 1), is(LONG_VALUE));
+        assertThat(duplicateBuffer.getLong(INDEX), is(LONG_VALUE + 1));
+    }
+
+    @Theory
     public void shouldGetIntFromBuffer(final AtomicBuffer buffer, final ByteOrder byteOrder)
     {
         final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(byteOrder);

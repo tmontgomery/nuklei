@@ -263,6 +263,18 @@ public class AtomicBuffer
     }
 
     /**
+     * Get value of long value atomically and atomically increment value afterward
+     *
+     * @param index of the long value in the buffer
+     * @param delta to increment the long value with after returning
+     * @return the value of the long value before incrementing
+     */
+    public long getAndAddLong(final int index, final long delta)
+    {
+        return UNSAFE.getAndAddLong(byteArray, addressOffset + index, delta);
+    }
+
+    /**
      * Atomically compare and swap long integer values
      *
      * @param index of the long value in the buffer

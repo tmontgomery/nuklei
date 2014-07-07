@@ -28,8 +28,8 @@ public class MpscRingBufferWriter implements RingBufferWriter
 
     private final AtomicBuffer buffer;
     private final int mask;
-    private final int tailCounterIndex;
-    private final int headCounterIndex;
+    private final int tailCounterOffset;
+    private final int headCounterOffset;
     private final int capacity;
 
     /**
@@ -44,8 +44,8 @@ public class MpscRingBufferWriter implements RingBufferWriter
         this.buffer = buffer;
         this.capacity = buffer.capacity() - MpscRingBuffer.STATE_TRAILER_SIZE;
         this.mask = capacity - 1;
-        this.tailCounterIndex = capacity + MpscRingBuffer.TAIL_RELATIVE_OFFSET;
-        this.headCounterIndex = capacity + MpscRingBuffer.HEAD_RELATIVE_OFFSET;
+        this.tailCounterOffset = capacity + MpscRingBuffer.TAIL_RELATIVE_OFFSET;
+        this.headCounterOffset = capacity + MpscRingBuffer.HEAD_RELATIVE_OFFSET;
     }
 
     /**
@@ -113,7 +113,7 @@ public class MpscRingBufferWriter implements RingBufferWriter
                 padding = bufferEndSize;
             }
         }
-        while (!buffer.compareAndSwapLong(tailCounterIndex, tail, tail + requiredCapacity + padding));
+        while (!buffer.compareAndSwapLong(tailCounterOffset, tail, tail + requiredCapacity + padding));
 
         if (0 < padding)
         {
@@ -126,12 +126,12 @@ public class MpscRingBufferWriter implements RingBufferWriter
 
     private long headVolatile()
     {
-        return buffer.getLongVolatile(headCounterIndex);
+        return buffer.getLongVolatile(headCounterOffset);
     }
 
     private long tailVolatile()
     {
-        return buffer.getLongVolatile(tailCounterIndex);
+        return buffer.getLongVolatile(tailCounterOffset);
     }
 
     private void writePaddingRecord(final int messageIndex, final int padding)

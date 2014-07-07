@@ -27,8 +27,8 @@ public class MpscRingBufferReader implements RingBufferReader
 {
     private final AtomicBuffer buffer;
     private final int mask;
-    private final int tailCounterIndex;
-    private final int headCounterIndex;
+    private final int tailCounterOffset;
+    private final int headCounterOffset;
     private final int capacity;
 
     /**
@@ -43,8 +43,8 @@ public class MpscRingBufferReader implements RingBufferReader
         this.buffer = buffer;
         this.capacity = buffer.capacity() - MpscRingBuffer.STATE_TRAILER_SIZE;
         this.mask = capacity - 1;
-        this.tailCounterIndex = capacity + MpscRingBuffer.TAIL_RELATIVE_OFFSET;
-        this.headCounterIndex = capacity + MpscRingBuffer.HEAD_RELATIVE_OFFSET;
+        this.tailCounterOffset = capacity + MpscRingBuffer.TAIL_RELATIVE_OFFSET;
+        this.headCounterOffset = capacity + MpscRingBuffer.HEAD_RELATIVE_OFFSET;
     }
 
     /**
@@ -102,12 +102,12 @@ public class MpscRingBufferReader implements RingBufferReader
 
     private long headVolatile()
     {
-        return buffer.getLongVolatile(headCounterIndex);
+        return buffer.getLongVolatile(headCounterOffset);
     }
 
     private long tailVolatile()
     {
-        return buffer.getLongVolatile(tailCounterIndex);
+        return buffer.getLongVolatile(tailCounterOffset);
     }
 
     private int waitForMsgLengthVolatile(final int messageIndex)
@@ -130,6 +130,6 @@ public class MpscRingBufferReader implements RingBufferReader
 
     private void putHeadOrdered(final long value)
     {
-        buffer.putLongOrdered(headCounterIndex, value);
+        buffer.putLongOrdered(headCounterOffset, value);
     }
 }

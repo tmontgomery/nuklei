@@ -54,7 +54,6 @@ Spying support.
 
 ## TODOs
 
-- Add MpscConcurrentArrayQueue (JCTools version with Spy support added) with ring buffer-style interface
 - JMH benchmarks for MPSC primitives 
 - Flush out Runtimes/Schedulers
     - Dedicated Thread, Manual Assignment

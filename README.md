@@ -58,12 +58,15 @@ Spying support.
 - Flush out Runtimes/Schedulers
     - Dedicated Thread, Manual Assignment
     - FJP
+- Spy for RingBuffer and ArrayBuffer
 - Robin Hood HashMap for Dictionary-style state handling within Nuklei
 - Pre-packaged Nuklei
     - TCP Acceptor
     - TCP Connector
     - TCP Reader
     - TCP Writer
+    - UDP Reader
+    - UDP Writer
 - Standard Parsers/Flyweights
     - WebSocket (RFC 6455) via HTTP/1.1 Upgrade
     - CoAP (RFC 7252) over WebSocket

@@ -46,6 +46,8 @@ public class MpscRingBufferConcurrencyTest
     private static final int NUM_GENERATORS_INDEX = 0;
     private static final int CAPACITY_INDEX = 1;
 
+    private static final int MESSAGE_LENGTH = 2 * BitUtil.SIZE_OF_INT;
+
     @DataPoint
     public static final int[] TWO_WRITERS_16K = { 2, 16 * 1024 };
 
@@ -132,7 +134,7 @@ public class MpscRingBufferConcurrencyTest
         final RingBufferReader.ReadHandler handler = (typeId, buffer, index, length) ->
         {
             assertThat(typeId, is(MSG_TYPE_ID));
-            assertThat(length, is(2 * BitUtil.SIZE_OF_INT));
+            assertThat(length, is(MESSAGE_LENGTH));
 
             final int id = buffer.getInt(index);
             final int messageNum = buffer.getInt(index + BitUtil.SIZE_OF_INT);
@@ -160,10 +162,12 @@ public class MpscRingBufferConcurrencyTest
 
     private static class Writer implements Runnable
     {
+
         private final CyclicBarrier goBarrier;
         private final MpscRingBufferWriter writer;
         private final int id;
         private final int messages;
+        private final AtomicBuffer srcBuffer;
 
         public Writer(final AtomicBuffer buffer, final CyclicBarrier goBarrier, final int id, final int messages)
         {
@@ -171,6 +175,7 @@ public class MpscRingBufferConcurrencyTest
             this.writer = new MpscRingBufferWriter(buffer);
             this.id = id;
             this.messages = messages;
+            this.srcBuffer = new AtomicBuffer(new byte[MESSAGE_LENGTH]);
         }
 
         public void run()
@@ -183,17 +188,13 @@ public class MpscRingBufferConcurrencyTest
             {
             }
 
-            final int messageLength = 2 * BitUtil.SIZE_OF_INT;
-            final int messageNumOffset = BitUtil.SIZE_OF_INT;
-            final AtomicBuffer srcBuffer = new AtomicBuffer(new byte[64]);
-
             srcBuffer.putInt(0, id);
 
             for (int i = 0; i < messages; i++)
             {
-                srcBuffer.putInt(messageNumOffset, i);
+                srcBuffer.putInt(BitUtil.SIZE_OF_INT, i);
 
-                while (!writer.write(MSG_TYPE_ID, srcBuffer, 0, messageLength))
+                while (!writer.write(MSG_TYPE_ID, srcBuffer, 0, MESSAGE_LENGTH))
                 {
                     Thread.yield();
                 }

@@ -19,11 +19,12 @@ import com.kaazing.nuklei.BitUtil;
 import sun.misc.Unsafe;
 
 /*
- * Padding is to 64-bit cache lines, but might need to be 128-bit
+ * Padding is to 64-bit cache lines, but might need to be 128-bit (uncomment additional padding)
  */
 class Padding1
 {
     protected long p1, p2, p3, p4, p5, p6, p7;
+    //protected long p101, p102, p103, p104, p105, p106, p107;
 }
 
 class Tail extends Padding1
@@ -34,6 +35,7 @@ class Tail extends Padding1
 class Padding2 extends Tail
 {
     protected long p8, p9, p10, p11, p12, p13, p14;
+    //protected long p108, p109, p110, p111, p112, p113, p114;
 }
 
 class Head extends Padding2
@@ -44,6 +46,7 @@ class Head extends Padding2
 class Padding3 extends Head
 {
     protected long p15, p16, p17, p18, p19, p20, p21;
+    //protected long p115, p116, p117, p118, p119, p120, p121;
 }
 
 class IdCounter extends Padding3
@@ -54,6 +57,7 @@ class IdCounter extends Padding3
 class Padding4 extends IdCounter
 {
     protected long p22, p23, p24, p25, p26, p27, p28;
+    //protected long p122, p123, p124, p125, p126, p127, p128;
 }
 
 class HeadCache extends Padding4
@@ -64,6 +68,7 @@ class HeadCache extends Padding4
 class Padding5 extends HeadCache
 {
     protected long p29, p30, p31, p32, p33, p34, p35;
+    //protected long p129, p130, p131, p132, p133, p134, p135;
 }
 
 /**

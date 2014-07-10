@@ -51,14 +51,16 @@ public class MpscRingBufferConcurrencyTest
     @DataPoint
     public static final int[] TWO_WRITERS_16K = { 2, 16 * 1024 };
 
-    @DataPoint
-    public static final int[] ONE_WRITER_16K = { 1, 16 * 1024 };
-
-    @DataPoint
-    public static final int[] TWO_WRITERS_64K = { 2, 64 * 1024 };
-
-    @DataPoint
-    public static final int[] ONE_WRITER_64K = { 1, 64 * 1024 };
+// Additional data points that can aid in testing. Uncomment if suspected problems
+//
+//    @DataPoint
+//    public static final int[] ONE_WRITER_16K = { 1, 16 * 1024 };
+//
+//    @DataPoint
+//    public static final int[] TWO_WRITERS_64K = { 2, 64 * 1024 };
+//
+//    @DataPoint
+//    public static final int[] ONE_WRITER_64K = { 1, 64 * 1024 };
 
     @Theory
     @Test(timeout = 1000)

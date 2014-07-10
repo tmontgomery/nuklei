@@ -35,7 +35,7 @@ You require the following to build Nuklei:
 
 To build and install to local maven repository.
 
-    $ mvn install
+    $ mvn clean install
 
 ## Components
 

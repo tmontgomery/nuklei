@@ -3,39 +3,42 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.kaazing</groupId>
-    <artifactId>nuklei-parent</artifactId>
-    <packaging>pom</packaging>
-    <version>0.1-SNAPSHOT</version>
+    <parent>
+        <groupId>com.kaazing</groupId>
+        <artifactId>nuklei-parent</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
 
-    <name>Nuklei Parent</name>
-    <url>https://github.com/kaazing/nuklei.git</url>
+    <artifactId>nuklei-benchmarks</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Nuklei Benchmarks</name>
     <description>
-        Micro-services toolkit
+        Benchmarks for components.
     </description>
-
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <inceptionYear>2014</inceptionYear>
-
-    <scm>
-        <url>https://github.com/kaazing/nuklei.git</url>
-        <connection>scm:git:https://github.com/kaazing/nuklei.git</connection>
-    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <modules>
-        <module>nuklei-core</module>
-        <module>nuklei-benchmarks</module>
-    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>com.kaazing</groupId>
+            <artifactId>nuklei-core</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>0.9.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>0.9.2</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -73,6 +76,29 @@
                     <compilerArgument>-XDignore.symbol.file</compilerArgument>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>microbenchmarks</finalName>
+                            <transformers>
+                                <transformer
+                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>org.openjdk.jmh.Main</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 

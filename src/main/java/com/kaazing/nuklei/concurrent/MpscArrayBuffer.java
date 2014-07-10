@@ -184,7 +184,7 @@ public class MpscArrayBuffer<E> extends Padding5
 
         try
         {
-            while (currentHead < tail)
+            while ((currentHead < tail) && (messagesRead < limit))
             {
                 final long offset = calculateMessageOffset((int)currentHead & mask);
                 final E message = objectVolatile(buffer, offset);

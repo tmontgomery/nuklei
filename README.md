@@ -42,9 +42,9 @@ To build and install to local maven repository.
 - __AtomicBuffer__: common interface over `byte[]`, `ByteBuffer` (including `MappedByteBuffer`),
 and heap-allocated memory. Port of SBE DirectBuffer with additions for atomic operations.
 - __Nukleus__: interface for service. Also the service itself.
-- multiple-producer-single-consumer (MPSC) ring buffer between Nuklei (suitable for inter-process communications)
+- __MpscRingBuffer__: multiple-producer-single-consumer (MPSC) ring buffer between Nuklei (suitable for inter-process communications)
 with Spying support.
-- multiple-producer-single-consumer (MPSC) queue between Nuklei (suitable for in-process communications) with
+- __MpscArrayBuffer__: multiple-producer-single-consumer (MPSC) queue between Nuklei (suitable for in-process communications) with
 Spying support.
 - __Spy__: means to attach a "sniffer" to a communication channel to spy on the data exchange. May be lossy. Similar to
 `tcpdump`.

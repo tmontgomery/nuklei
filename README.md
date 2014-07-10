@@ -54,7 +54,6 @@ Spying support.
 
 ## TODOs
 
-- JMH benchmarks for MPSC primitives 
 - Flush out Runtimes/Schedulers
     - Dedicated Thread, Manual Assignment
     - FJP

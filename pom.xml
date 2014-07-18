@@ -3,7 +3,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.kaazing</groupId>
+    <groupId>org.kaazing</groupId>
     <artifactId>nuklei-parent</artifactId>
     <packaging>pom</packaging>
     <version>0.1-SNAPSHOT</version>

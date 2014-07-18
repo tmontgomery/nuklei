@@ -21,6 +21,7 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -94,7 +95,7 @@ public class MpscArrayBufferTest
     {
         buffer = new MpscArrayBuffer<>(capacity);
 
-        final MpscArrayBuffer.ReadHandler<Integer> handler = (i) -> {};
+        final Consumer<Integer> handler = (i) -> {};
 
         IntStream.range(0, capacity).forEach((i) -> assertTrue(buffer.write(i)));
 
@@ -112,7 +113,7 @@ public class MpscArrayBufferTest
 
         assertTrue(buffer.write(1));
 
-        final MpscArrayBuffer.ReadHandler<Integer> handler = (i) -> assertThat(i, is(1));
+        final Consumer<Integer> handler = (i) -> assertThat(i, is(1));
 
         assertThat(buffer.read(handler, Integer.MAX_VALUE), is(1));
     }
@@ -125,7 +126,7 @@ public class MpscArrayBufferTest
         IntStream.range(0, 2).forEach((i) -> assertTrue(buffer.write(i)));
 
         final int[] times = new int[1];
-        final MpscArrayBuffer.ReadHandler<Integer> handler = (i) ->
+        final Consumer<Integer> handler = (i) ->
         {
             assertThat(times[0], is(i));
             ++times[0];
@@ -140,7 +141,7 @@ public class MpscArrayBufferTest
     {
         buffer = new MpscArrayBuffer<>(capacity);
 
-        final MpscArrayBuffer.ReadHandler<Integer> handler = (i) -> {};
+        final Consumer<Integer> handler = (i) -> {};
 
         IntStream.range(0, capacity).forEach((i) -> assertTrue(buffer.write(i)));
 
@@ -156,7 +157,7 @@ public class MpscArrayBufferTest
     {
         buffer = new MpscArrayBuffer<>(capacity);
 
-        final MpscArrayBuffer.ReadHandler<Integer> handler = (i) -> fail("should not be called");
+        final Consumer<Integer> handler = (i) -> fail("should not be called");
 
         assertThat(buffer.read(handler, 1), is(0));
     }
@@ -168,11 +169,11 @@ public class MpscArrayBufferTest
 
         IntStream.range(0, 2).forEach((i) -> assertTrue(buffer.write(i)));
 
-        final MpscArrayBuffer.ReadHandler<Integer> noOp = (i) -> {};
+        final Consumer<Integer> noOp = (i) -> {};
 
         assertThat(buffer.read(noOp, Integer.MAX_VALUE), is(2));
 
-        final MpscArrayBuffer.ReadHandler<Integer> handler = (i) -> fail("should not be called");
+        final Consumer<Integer> handler = (i) -> fail("should not be called");
 
         assertThat(buffer.read(handler, Integer.MAX_VALUE), is(0));
     }
@@ -185,7 +186,7 @@ public class MpscArrayBufferTest
         IntStream.range(0, capacity).forEach((i) -> assertTrue(buffer.write(i)));
 
         final int[] times = new int[1];
-        final MpscArrayBuffer.ReadHandler<Integer> handler = (i) -> ++times[0];
+        final Consumer<Integer> handler = (i) -> ++times[0];
 
         assertThat(buffer.read(handler, capacity - 1), is(capacity - 1));
         assertThat(times[0], is(capacity - 1));
@@ -200,7 +201,7 @@ public class MpscArrayBufferTest
         assertTrue(buffer.write(2));
 
         final int[] times = new int[1];
-        final MpscArrayBuffer.ReadHandler<Integer> handler = (i) ->
+        final Consumer<Integer> handler = (i) ->
         {
             if (2 == ++times[0])
             {

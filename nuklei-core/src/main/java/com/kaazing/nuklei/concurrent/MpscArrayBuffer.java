@@ -18,6 +18,8 @@ package com.kaazing.nuklei.concurrent;
 import com.kaazing.nuklei.BitUtil;
 import sun.misc.Unsafe;
 
+import java.util.function.Consumer;
+
 /*
  * Padding is to 64-bit cache lines, but might need to be 128-bit (uncomment additional padding)
  */
@@ -78,20 +80,6 @@ class Padding5 extends HeadCache
  */
 public class MpscArrayBuffer<E> extends Padding5
 {
-    /**
-     * Handler for reading messages out of a buffer
-     */
-    @FunctionalInterface
-    public interface ReadHandler<E>
-    {
-        /**
-         * Message read from a buffer.
-         *
-         * @param message read
-         */
-        void onMessage(final E message);
-    }
-
     private static final Unsafe UNSAFE = BitUtil.UNSAFE;
     private static final long TAIL_COUNTER_OFFSET;
     private static final long HEAD_COUNTER_OFFSET;
@@ -179,7 +167,7 @@ public class MpscArrayBuffer<E> extends Padding5
      * @param limit to impose on the number of read messages
      * @return number of messages read
      */
-    public int read(final ReadHandler<E> handler, final int limit)
+    public int read(final Consumer<E> handler, final int limit)
     {
         final long tail = tailVolatile();
         final long head = headVolatile();
@@ -202,7 +190,7 @@ public class MpscArrayBuffer<E> extends Padding5
 
                 ++messagesRead;
                 putMessageOrdered(buffer, offset, null);
-                handler.onMessage(message);
+                handler.accept(message);
                 ++currentHead;
             }
         }

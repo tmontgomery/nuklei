@@ -15,13 +15,93 @@
  */
 package com.kaazing.nuklei;
 
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
- * Placeholder
+ * Nuklei is a thread that holds a group of Nukleus
+ *
+ * Used for manual assignment of Nuklei
  */
-public class Nuklei
+public class Nuklei implements Runnable
 {
-    public static void main(final String[] args)
+    private final Thread thread;
+    private final AtomicReference<Nukleus[]> nukleusArrayRef;
+
+    private volatile boolean done;
+
+    public Nuklei(final String name)
     {
-        System.out.println("Hello");
+        thread = new Thread(this);
+        nukleusArrayRef = new AtomicReference<>();
+
+        final Nukleus[] initialArray = new Nukleus[0];
+
+        thread.setName(name);
+        nukleusArrayRef.set(initialArray);
+        done = false;
+        thread.start();
     }
+
+    public void done(final boolean value)
+    {
+        done = value;
+    }
+
+    public void stop()
+    {
+        done = true;
+        thread.interrupt();
+
+        do
+        {
+            try
+            {
+                thread.join(100);
+
+                if (!thread.isAlive())
+                {
+                    break;
+                }
+            }
+            catch (final InterruptedException ex)
+            {
+                System.err.println("Nuklei <" + thread.getName() + "> interrupted stop. Retrying...");
+                thread.interrupt();
+            }
+        }
+        while (true);
+    }
+
+    void spinUp(final Nukleus nukleus)
+    {
+        Nukleus[] oldArray = nukleusArrayRef.get();
+        Nukleus[] newArray = Arrays.copyOf(oldArray, oldArray.length + 1);
+
+        newArray[oldArray.length] = nukleus;
+
+        nukleusArrayRef.lazySet(newArray);
+    }
+
+    public void run()
+    {
+        while (true)
+        {
+            final Nukleus[] nuklei = nukleusArrayRef.get();
+            int weight = 0;
+
+            for (final Nukleus nukleus: nuklei)
+            {
+                weight += nukleus.process();
+
+                if (done)
+                {
+                    return;
+                }
+            }
+
+            // TODO: add idle strategy (spin, yield, then park) and pass weight to it
+        }
+    }
+
 }

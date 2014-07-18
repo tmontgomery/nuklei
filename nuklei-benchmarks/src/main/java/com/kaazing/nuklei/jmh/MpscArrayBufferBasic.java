@@ -20,6 +20,7 @@ import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Control;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * 2 writer, 1 reader benchmark
@@ -39,7 +40,7 @@ public class MpscArrayBufferBasic
     private static final ThreadLocal<ReaderMarker> marker = new ThreadLocal<>();
 
     private final MpscArrayBuffer<Integer> buffer = new MpscArrayBuffer<>(1024*1024);
-    private final MpscArrayBuffer.ReadHandler<Integer> handler = (i) -> {};
+    private final Consumer<Integer> handler = (i) -> {};
 
     @State(Scope.Thread)
     public static class ReaderMarker

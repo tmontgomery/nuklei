@@ -22,6 +22,7 @@ import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CyclicBarrier;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -117,7 +118,7 @@ public class MpscArrayBufferConcurrencyTest
 
         final int[] counts = new int[numWriters];
 
-        final MpscArrayBuffer.ReadHandler<int[]> handler = (msg) ->
+        final Consumer<int[]> handler = (msg) ->
         {
             assertThat(msg.length, is(2));
 

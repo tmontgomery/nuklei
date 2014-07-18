@@ -18,22 +18,28 @@ package com.kaazing.nuklei;
 /**
  * Basic interface for a running service, aka Nukleus.
  */
+@FunctionalInterface
 public interface Nukleus
 {
     /**
-     * Start nukleus
-     */
-    void start();
-
-    /**
-     * Process waiting messages
+     * Process waiting events or do some other single iteration amount of work
      *
-     * @return whether work has been done or not
+     * The value returned should indicate the desire to be rescheduled quickly. A higher value means,
+     * more desire. Here are some ways to leverage this knowledge.
+     *
+     * 1. This method does processing of messages and returns the number of messages processed. If
+     * no messages processed, then returning 0 means no immediate needs. A value of > 0 means some messages
+     * processed and more might be waiting.
+     *
+     * 2. This method does a lazy processing and doesn't need to be rescheduled very heavily. Thus the method
+     * always returns 0.
+     *
+     * 3. This method is time critical and should always be rescheduled quickly without letting the runtime put
+     * the thread idle for any reason. Thus the method always returns > 0.
+     *
+     * NOTE: This method makes no guarantees of processing, it is simply hints to the runtime/scheduler.
+     *
+     * @return indication of weight of rescheduling desire
      */
-    boolean process();
-
-    /**
-     * Close down nukleus and free resources
-     */
-    void close();
+    int process();
 }

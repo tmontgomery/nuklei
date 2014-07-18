@@ -17,6 +17,7 @@ package org.kaazing.nuklei;
 
 import sun.misc.Unsafe;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -95,7 +96,7 @@ public class BitUtil
     /**
      * Fast method of finding the next power of 2 greater than or equal to the supplied value.
      *
-     * If the value is <= 0 then 1 will be returned.
+     * If the value is less than or equal to 0 then 1 will be returned.
      *
      * This method is not suitable for {@link Integer#MIN_VALUE} or numbers greater than 2^30.
      *
@@ -110,10 +111,11 @@ public class BitUtil
     /**
      * Align a value to the next multiple up of alignment.
      * If the value equals an alignment multiple then it is returned unchanged.
-     * <p/>
+     *
      * This method executes without branching.
      *
      * @param value to be aligned up.
+     * @param alignment to use.
      * @return the value aligned to the next boundary.
      */
     public static int align(final int value, final int alignment)
@@ -124,10 +126,11 @@ public class BitUtil
     /**
      * Align a value to the next multiple up of alignment.
      * If the value equals an alignment multiple then it is returned unchanged.
-     * <p/>
+     *
      * This method executes without branching.
      *
      * @param value to be aligned up.
+     * @param alignment to use.
      * @return the value aligned to the next boundary.
      */
     public static long align(final long value, final long alignment)
@@ -160,8 +163,9 @@ public class BitUtil
      *
      * @param buffer to convert to a hex representation
      * @return new String holding the hex representation (in Big Endian) of the passed array
+     * @throws java.io.UnsupportedEncodingException if UTF-8 not supported
      */
-    public static String toHex(final byte[] buffer) throws Exception
+    public static String toHex(final byte[] buffer) throws UnsupportedEncodingException
     {
         return new String(toHexByteArray(buffer), "UTF-8");
     }
@@ -174,6 +178,7 @@ public class BitUtil
      *
      * @param byteBuffer to set the address on.
      * @param address to set for the underlying buffer.
+     * @param capacity to set for the underlying buffer.
      * @return the modified {@link java.nio.ByteBuffer}
      */
     public static ByteBuffer resetAddressAndCapacity(final ByteBuffer byteBuffer, final long address, final int capacity)

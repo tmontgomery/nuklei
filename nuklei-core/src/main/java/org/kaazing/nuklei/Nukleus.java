@@ -28,14 +28,14 @@ public interface Nukleus
      * more desire. Here are some ways to leverage this knowledge.
      *
      * 1. This method does processing of messages and returns the number of messages processed. If
-     * no messages processed, then returning 0 means no immediate needs. A value of > 0 means some messages
+     * no messages processed, then returning 0 means no immediate needs. A value of &gt; 0 means some messages
      * processed and more might be waiting.
      *
      * 2. This method does a lazy processing and doesn't need to be rescheduled very heavily. Thus the method
      * always returns 0.
      *
      * 3. This method is time critical and should always be rescheduled quickly without letting the runtime put
-     * the thread idle for any reason. Thus the method always returns > 0.
+     * the thread idle for any reason. Thus the method always returns &gt; 0.
      *
      * NOTE: This method makes no guarantees of processing, it is simply hints to the runtime/scheduler.
      *

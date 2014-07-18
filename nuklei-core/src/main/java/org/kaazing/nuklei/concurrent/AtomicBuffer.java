@@ -628,6 +628,7 @@ public class AtomicBuffer
      *
      * @param index     in the underlying buffer to start from.
      * @param srcBuffer to copy the bytes from.
+     * @param length    to copy.
      * @return count of bytes copied.
      */
     public int putBytes(final int index, final ByteBuffer srcBuffer, final int length)

@@ -72,8 +72,8 @@ public class FjpDedicatedNuklei implements Nuklei, Runnable
             {
                 if (!nukleus.isInProcess())
                 {
-                    pool.execute(nukleus);
                     nukleus.inProcess(true);
+                    pool.execute(nukleus);
                     weight++;
                 }
 

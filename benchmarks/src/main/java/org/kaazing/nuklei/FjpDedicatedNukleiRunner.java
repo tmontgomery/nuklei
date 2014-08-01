@@ -16,10 +16,7 @@
 
 package org.kaazing.nuklei;
 
-/**
- * Runner for various
- */
-public class NukleiRunner
+public class FjpDedicatedNukleiRunner
 {
     public static void main(final String[] args) throws Exception
     {

@@ -18,11 +18,11 @@ package org.kaazing.nuklei;
 
 import java.util.Arrays;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * {@link java.util.concurrent.ForkJoinPool} based scheduler that does not use a submitter thread
+ * but instead re-executes as last step in run.
  */
 public class FjpFreeStandingNuklei
 {
@@ -49,42 +49,28 @@ public class FjpFreeStandingNuklei
         Wrapper[] oldArray = nukleusArrayRef.get();
         Wrapper[] newArray = Arrays.copyOf(oldArray, oldArray.length + 1);
 
-        newArray[oldArray.length] = new Wrapper(nukleus).start(pool);
+        newArray[oldArray.length] = new Wrapper(nukleus, pool);
+
+        pool.execute(newArray[oldArray.length]);
 
         nukleusArrayRef.lazySet(newArray);
     }
 
-    private static class Wrapper extends ForkJoinTask<Void>
+    private static class Wrapper implements Runnable
     {
         private final Nukleus nukleus;
+        private final ForkJoinPool pool;
 
-        Wrapper(final Nukleus nukleus)
+        Wrapper(final Nukleus nukleus, final ForkJoinPool pool)
         {
             this.nukleus = nukleus;
+            this.pool = pool;
         }
 
-        public Wrapper start(final ForkJoinPool pool)
-        {
-            pool.execute(this);
-            return this;
-        }
-
-        public Void getRawResult()
-        {
-            return null;
-        }
-
-        protected void setRawResult(final Void value)
-        {
-        }
-
-        protected boolean exec()
+        public void run()
         {
             nukleus.process();
-            reinitialize();
-            fork();
-
-            return true;
+            pool.execute(this);
         }
     }
 }

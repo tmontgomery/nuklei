@@ -21,11 +21,13 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * {@link java.util.concurrent.ForkJoinPool} based scheduler that does not use a submitter thread
+ * {@link ForkJoinPool} based scheduler that does not use a submitter thread
  * but instead re-executes as last step in run.
  */
 public class FjpFreeStandingNuklei
 {
+    public static final int SPINS = 100;
+
     private final ForkJoinPool pool;
     private final AtomicReference<Wrapper[]> nukleusArrayRef;
 
@@ -60,16 +62,21 @@ public class FjpFreeStandingNuklei
     {
         private final Nukleus nukleus;
         private final ForkJoinPool pool;
+        private final FjpManagedBlockerIdler idler;
 
         Wrapper(final Nukleus nukleus, final ForkJoinPool pool)
         {
             this.nukleus = nukleus;
             this.pool = pool;
+            this.idler = new FjpManagedBlockerIdler(SPINS);
         }
 
         public void run()
         {
-            nukleus.process();
+            final int weight = nukleus.process();
+
+            idler.idle(weight);
+
             pool.execute(this);
         }
     }

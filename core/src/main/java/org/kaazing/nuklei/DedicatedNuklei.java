@@ -85,7 +85,7 @@ public class DedicatedNuklei implements Nuklei, Runnable
 
     public void run()
     {
-        while (true)
+        while (!done)
         {
             final Nukleus[] nuklei = nukleusArrayRef.get();
             int weight = 0;

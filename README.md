@@ -55,7 +55,6 @@ Spying support.
 ## TODOs
 
 - Flush out Runtimes/Schedulers
-    - Dedicated Thread, Manual Assignment
     - FJP
 - Spy for RingBuffer and ArrayBuffer
 - Robin Hood HashMap for Dictionary-style state handling within Nuklei

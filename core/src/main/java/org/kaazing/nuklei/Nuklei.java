@@ -21,5 +21,10 @@ package org.kaazing.nuklei;
  */
 public interface Nuklei
 {
+    /**
+     * Spin up a {@link Nukleus} and start it running.
+     *
+     * @param nukleus to spin up
+     */
     void spinUp(final Nukleus nukleus);
 }

@@ -15,8 +15,10 @@
  */
 package org.kaazing.nuklei;
 
+import org.kaazing.nuklei.concurrent.ArrayBufferReader;
 import org.kaazing.nuklei.concurrent.AtomicBuffer;
 import org.kaazing.nuklei.concurrent.MpscArrayBuffer;
+import org.kaazing.nuklei.concurrent.ringbuffer.RingBufferReader;
 import org.kaazing.nuklei.concurrent.ringbuffer.mpsc.MpscRingBufferReader;
 
 import java.util.function.Consumer;
@@ -26,14 +28,29 @@ import java.util.function.Consumer;
  */
 public class MessagingNukleus implements Nukleus
 {
-    private final MpscRingBufferReader ringBufferReader;
+    private static final RingBufferReader NULL_RING_BUFFER_READER = (handler, limit) -> 0;
+    private static final ArrayBufferReader<Object> NULL_ARRAY_BUFFER_READER = (handler, limit) -> 0;
+    private static final Nukleus NULL_NUKLEUS = () -> 0;
+
+    private final RingBufferReader ringBufferReader;
+    private final MpscRingBufferReader mpscRingBufferReader;
     private final MpscRingBufferReader.ReadHandler ringBufferHandler;
-    private final MpscArrayBuffer<Object> arrayBuffer;
+
+    private final ArrayBufferReader<Object> arrayBufferReader;
+    private final MpscArrayBuffer<Object> mpscArrayBuffer;
     private final Consumer<Object> arrayBufferHandler;
+
+    private final Nukleus nioSelectorProcess;
     private final NioSelectorNukleus nioSelectorNukleus;
+
     private final int ringBufferReadLimit;
     private final int arrayBufferReadLimit;
 
+    /**
+     * Construct a messaging-based {@link Nukleus} that reads and processes messages in various forms.
+     *
+     * @param builder for the nukleus
+     */
     public MessagingNukleus(final Builder builder)
     {
         if (null == builder.ringBuffer && null == builder.arrayBuffer && null == builder.nioSelectorNukleus)
@@ -41,13 +58,43 @@ public class MessagingNukleus implements Nukleus
             throw new IllegalArgumentException("must specify either RingBuffer, ArrayBuffer, and/or NioSelector for Nukleus");
         }
 
-        this.ringBufferReader = (null != builder.ringBuffer) ? new MpscRingBufferReader(builder.ringBuffer) : null;
-        this.arrayBuffer = builder.arrayBuffer;
+        if (null != builder.ringBuffer)
+        {
+            this.mpscRingBufferReader = new MpscRingBufferReader(builder.ringBuffer);
+            this.ringBufferReader = mpscRingBufferReader;
+        }
+        else
+        {
+            this.mpscRingBufferReader = null;
+            this.ringBufferReader = NULL_RING_BUFFER_READER;
+        }
+
+        if (null != builder.arrayBuffer)
+        {
+            this.mpscArrayBuffer = builder.arrayBuffer;
+            this.arrayBufferReader = builder.arrayBuffer;
+        }
+        else
+        {
+            this.mpscArrayBuffer = null;
+            this.arrayBufferReader = NULL_ARRAY_BUFFER_READER;
+        }
+
+        if (null != builder.nioSelectorNukleus)
+        {
+            this.nioSelectorNukleus = builder.nioSelectorNukleus;
+            this.nioSelectorProcess = builder.nioSelectorNukleus;
+        }
+        else
+        {
+            this.nioSelectorNukleus = null;
+            this.nioSelectorProcess = NULL_NUKLEUS;
+        }
+
         this.ringBufferHandler = builder.ringBufferHandler;
         this.arrayBufferHandler = builder.arrayBufferHandler;
         this.ringBufferReadLimit = builder.ringBufferReadLimit;
         this.arrayBufferReadLimit = builder.arrayBufferReadLimit;
-        this.nioSelectorNukleus = builder.nioSelectorNukleus;
     }
 
     /** {@inheritDoc} */
@@ -57,22 +104,10 @@ public class MessagingNukleus implements Nukleus
 
         try
         {
-            // TODO: instead of checks, use noop objects (return 0 weight) when these are not defined.
-
-            if (null != ringBufferReader)
-            {
-                weight += ringBufferReader.read(ringBufferHandler, ringBufferReadLimit);
-            }
-
-            if (null != arrayBuffer)
-            {
-                weight += arrayBuffer.read(arrayBufferHandler, arrayBufferReadLimit);
-            }
-
-            if (null != nioSelectorNukleus)
-            {
-                weight += nioSelectorNukleus.process();
-            }
+            // some of these might be noop lambdas that return 0, but should be no branching
+            weight += ringBufferReader.read(ringBufferHandler, ringBufferReadLimit);
+            weight += arrayBufferReader.read(arrayBufferHandler, arrayBufferReadLimit);
+            weight += nioSelectorProcess.process();
         }
         catch (final Exception ex)
         {
@@ -82,7 +117,9 @@ public class MessagingNukleus implements Nukleus
         return weight;
     }
 
-
+    /**
+     * Builder interface for nukleus
+     */
     public static class Builder
     {
         private AtomicBuffer ringBuffer;

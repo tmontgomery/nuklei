@@ -21,6 +21,8 @@ import org.kaazing.nuklei.NioSelectorNukleus;
 import org.kaazing.nuklei.concurrent.MpscArrayBuffer;
 
 import java.nio.channels.SelectionKey;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  */
@@ -30,6 +32,7 @@ public class TcpReceiver
 
     private final MessagingNukleus messagingNukleus;
     private final NioSelectorNukleus selectorNukleus;
+    private final Map<Long, TcpConnection> connectionsByIdMap;
 
     public TcpReceiver(final MpscArrayBuffer<Object> commandQueue, final NioSelectorNukleus selectorNukleus)
     {
@@ -40,6 +43,7 @@ public class TcpReceiver
         this.selectorNukleus = selectorNukleus;
 
         messagingNukleus = new MessagingNukleus(builder);
+        connectionsByIdMap = new HashMap<>();
     }
 
     private void commandHandler(final Object obj)
@@ -51,6 +55,7 @@ public class TcpReceiver
             try
             {
                 selectorNukleus.register(connection.channel(), SelectionKey.OP_READ, connection::onReadable);
+                connectionsByIdMap.put(connection.receiverId(), connection);
             }
             catch (final Exception ex)
             {

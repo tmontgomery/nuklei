@@ -53,7 +53,7 @@ public class FlyweightTest
     {
         final Flyweight flyweight = flyweightBigEndian;
 
-        flyweight.reset(aBuff, 0);
+        flyweight.wrap(aBuff, 0);
         Flyweight.uint32Put(aBuff, UINT32_OFFSET, UINT32_VALUE, ByteOrder.BIG_ENDIAN);
         Flyweight.uint16Put(aBuff, UINT16_OFFSET, UINT16_VALUE, ByteOrder.BIG_ENDIAN);
         Flyweight.uint8Put(aBuff, UINT8_OFFSET, UINT8_VALUE);
@@ -72,7 +72,7 @@ public class FlyweightTest
     {
         final Flyweight flyweight = flyweightLittleEndian;
 
-        flyweight.reset(aBuff, 0);
+        flyweight.wrap(aBuff, 0);
         Flyweight.uint32Put(aBuff, UINT32_OFFSET, UINT32_VALUE, ByteOrder.LITTLE_ENDIAN);
         Flyweight.uint16Put(aBuff, UINT16_OFFSET, UINT16_VALUE, ByteOrder.LITTLE_ENDIAN);
         Flyweight.uint8Put(aBuff, UINT8_OFFSET, UINT8_VALUE);
@@ -93,7 +93,7 @@ public class FlyweightTest
 
         IntStream.range(0, 7).forEach(i -> viewBuffer.put(i, BIG_ENDIAN_BYTE[i]));
 
-        flyweight.reset(aBuff, 0);
+        flyweight.wrap(aBuff, 0);
         assertThat(Long.valueOf(Flyweight.uint32Get(aBuff, UINT32_OFFSET, ByteOrder.BIG_ENDIAN)), is(UINT32_VALUE));
         assertThat(Integer.valueOf(Flyweight.uint16Get(aBuff, UINT16_OFFSET, ByteOrder.BIG_ENDIAN)), is(UINT16_VALUE));
         assertThat(Short.valueOf(Flyweight.uint8Get(aBuff, UINT8_OFFSET)), is(UINT8_VALUE));
@@ -106,7 +106,7 @@ public class FlyweightTest
 
         IntStream.range(0, 7).forEach(i -> viewBuffer.put(i, LITTLE_ENDIAN_BYTE[i]));
 
-        flyweight.reset(aBuff, 0);
+        flyweight.wrap(aBuff, 0);
         assertThat(Long.valueOf(Flyweight.uint32Get(aBuff, UINT32_OFFSET, ByteOrder.LITTLE_ENDIAN)), is(UINT32_VALUE));
         assertThat(Integer.valueOf(Flyweight.uint16Get(aBuff, UINT16_OFFSET, ByteOrder.LITTLE_ENDIAN)),
                    is(UINT16_VALUE));

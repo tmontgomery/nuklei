@@ -26,9 +26,9 @@ import java.nio.ByteOrder;
  */
 public class Flyweight
 {
-    protected final ByteOrder byteOrder;
-    protected int offset;
-    protected AtomicBuffer buffer;
+    private final ByteOrder byteOrder;
+    private int offset;
+    private AtomicBuffer buffer;
 
     /**
      * Construct a flyweight with a given byte order assumed
@@ -41,14 +41,30 @@ public class Flyweight
         this.offset = 0;
     }
 
+    protected ByteOrder byteOrder() {
+        return byteOrder;
+    }
+
+    public int offset() {
+        return offset;
+    }
+
+    public int limit() {
+        return offset;
+    }
+
+    protected AtomicBuffer buffer() {
+        return buffer;
+    }
+
     /**
-     * Reset a flyweight to use a specific buffer starting at a given offset.
+     * Wrap a flyweight to use a specific buffer starting at a given offset.
      *
      * @param buffer to use
      * @param offset to start at
      * @return flyweight
      */
-    public Flyweight reset(final AtomicBuffer buffer, final int offset)
+    public Flyweight wrap(final AtomicBuffer buffer, final int offset)
     {
         this.buffer = buffer;
         this.offset = offset;

@@ -96,7 +96,7 @@ public class TcpManagerTest
     }
 
     @Test(timeout = 1000)
-    public void shouldBeAbleToSpinUpAndSHutdownTcpManagerWithSingleNuklei() throws Exception
+    public void shouldBeAbleToSpinUpAndShutdownTcpManagerWithSingleNuklei() throws Exception
     {
         tcpManager.launch(dedicatedNuklei);
     }

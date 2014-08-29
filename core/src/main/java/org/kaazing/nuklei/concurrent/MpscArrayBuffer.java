@@ -78,7 +78,7 @@ class Padding5 extends HeadCache
  *
  * Approach inspired by JCTools (https://github.com/JCTools/JCTools) MpscArrayQueue
  */
-public class MpscArrayBuffer<E> extends Padding5
+public class MpscArrayBuffer<E> extends Padding5 implements ArrayBufferReader<E>
 {
     private static final Unsafe UNSAFE = BitUtil.UNSAFE;
     private static final long TAIL_COUNTER_OFFSET;
@@ -160,13 +160,7 @@ public class MpscArrayBuffer<E> extends Padding5
         return true;
     }
 
-    /**
-     * Read pending messages from the buffer up to a limit of number of messages. Does not block.
-     *
-     * @param handler to call for all read messages
-     * @param limit to impose on the number of read messages
-     * @return number of messages read
-     */
+    /** {@inheritDoc} */
     public int read(final Consumer<E> handler, final int limit)
     {
         final long tail = tailVolatile();

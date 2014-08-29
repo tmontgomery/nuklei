@@ -199,6 +199,16 @@ public class AtomicBuffer
 
         return duplicate;
     }
+    /**
+     * Get the value at a given index using native order.
+     *
+     * @param index in bytes from which to get.
+     * @return the value at a given index
+     */
+    public long getLong(final int index)
+    {
+        return UNSAFE.getLong(byteArray, addressOffset + index);
+    }
 
     /**
      * Get the value at a given index.
@@ -216,6 +226,17 @@ public class AtomicBuffer
         }
 
         return bits;
+    }
+
+    /**
+     * Put a value to a given index using native order.
+     *
+     * @param index in bytes for where to put.
+     * @param value to be written
+     */
+    public void putLong(final int index, final long value)
+    {
+        UNSAFE.putLong(byteArray, addressOffset + index, value);
     }
 
     /**

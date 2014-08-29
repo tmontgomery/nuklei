@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package org.kaazing.nuklei;
+package org.kaazing.nuklei.net.command;
 
 /**
- * Scheduler interface
  */
-public interface Nuklei
+public class TcpDetachCmd
 {
-    /**
-     * Spin up a {@link Nukleus} and start it running.
-     *
-     * @param nukleus to spin up
-     */
-    void spinUp(final Nukleus nukleus);
+    private final long id;
+
+    public TcpDetachCmd(final long id)
+    {
+        this.id = id;
+    }
+
+    public long id()
+    {
+        return id;
+    }
 }

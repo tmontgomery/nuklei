@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package org.kaazing.nuklei;
+package org.kaazing.nuklei.concurrent;
+
+import java.util.function.Consumer;
 
 /**
- * Scheduler interface
+ * Interface for readers
  */
-public interface Nuklei
+public interface ArrayBufferReader<E>
 {
     /**
-     * Spin up a {@link Nukleus} and start it running.
+     * Read pending messages from the buffer up to a limit of number of messages. Does not block.
      *
-     * @param nukleus to spin up
+     * @param handler to call for all read messages
+     * @param limit to impose on the number of read messages
+     * @return number of messages read
      */
-    void spinUp(final Nukleus nukleus);
+    public int read(final Consumer<E> handler, final int limit);
 }

@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package org.kaazing.nuklei;
+package org.kaazing.nuklei.net;
 
 /**
- * Scheduler interface
+ * Events for the TCP Manager
  */
-public interface Nuklei
+public class TcpManagerEvents
 {
-    /**
-     * Spin up a {@link Nukleus} and start it running.
-     *
-     * @param nukleus to spin up
-     */
-    void spinUp(final Nukleus nukleus);
+    public static final int NEW_CONNECTION_TYPE_ID = 1;
+    public static final int RECEIVED_DATA_TYPE_ID = 2;
+    public static final int SEND_DATA_TYPE_ID = 3;
 }

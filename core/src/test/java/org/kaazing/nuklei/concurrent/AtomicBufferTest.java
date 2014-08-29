@@ -88,6 +88,26 @@ public class AtomicBufferTest
     }
 
     @Theory
+    public void shouldGetLongFromNativeBuffer(final AtomicBuffer buffer)
+    {
+        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+
+        duplicateBuffer.putLong(INDEX, LONG_VALUE);
+
+        assertThat(buffer.getLong(INDEX), is(LONG_VALUE));
+    }
+
+    @Theory
+    public void shouldPutLongToNativeBuffer(final AtomicBuffer buffer)
+    {
+        final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(ByteOrder.nativeOrder());
+
+        buffer.putLong(INDEX, LONG_VALUE);
+
+        assertThat(duplicateBuffer.getLong(INDEX), is(LONG_VALUE));
+    }
+
+    @Theory
     public void shouldPutLongToBuffer(final AtomicBuffer buffer, final ByteOrder byteOrder)
     {
         final ByteBuffer duplicateBuffer = buffer.duplicateByteBuffer().order(byteOrder);

@@ -51,7 +51,6 @@ public class DedicatedNuklei implements Nuklei, Runnable
     public void stop()
     {
         done = true;
-        thread.interrupt();
 
         do
         {
@@ -64,9 +63,9 @@ public class DedicatedNuklei implements Nuklei, Runnable
                     break;
                 }
             }
-            catch (final InterruptedException ex)
+            catch (final Exception ex)
             {
-                System.err.println("Dedicated nuklei <" + thread.getName() + "> interrupted stop. Retrying...");
+                System.err.println("Dedicated nuklei <" + thread.getName() + "> exception. Retrying...");
                 thread.interrupt();
             }
         }

@@ -16,24 +16,23 @@
 
 package org.kaazing.nuklei.net;
 
+import org.kaazing.nuklei.BitUtil;
 import org.kaazing.nuklei.concurrent.AtomicBuffer;
 import org.kaazing.nuklei.concurrent.ringbuffer.mpsc.MpscRingBufferWriter;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.SocketChannel;
 
 /**
  */
 public class TcpConnection
 {
-    public static final int RECEIVE_TYPE_ID = 0;
-
     public static final int MAX_RECEIVE_LENGTH = 4096;
 
     private final SocketChannel channel;
     private final MpscRingBufferWriter receiveWriter;
-    private final long receiverId;
-    private final long senderId;
+    private final long id;
     private final ByteBuffer receiveByteBuffer;
     private final AtomicBuffer atomicBuffer;
 
@@ -42,17 +41,17 @@ public class TcpConnection
     // accepted version
     public TcpConnection(
         final SocketChannel channel,
-        final long receiverId,
-        final long senderId,
+        final long id,
         final AtomicBuffer receiveBuffer)
     {
         this.channel = channel;
-        this.receiverId = receiverId;
-        this.senderId = senderId;
+        this.id = id;
 
         receiveWriter = new MpscRingBufferWriter(receiveBuffer);
-        receiveByteBuffer = ByteBuffer.allocateDirect(MAX_RECEIVE_LENGTH);
+        receiveByteBuffer = ByteBuffer.allocateDirect(MAX_RECEIVE_LENGTH).order(ByteOrder.nativeOrder());
         atomicBuffer = new AtomicBuffer(receiveByteBuffer);
+
+        informOfNewConnection();
     }
 
     public SocketChannel channel()
@@ -60,14 +59,9 @@ public class TcpConnection
         return channel;
     }
 
-    public long receiverId()
+    public long id()
     {
-        return receiverId;
-    }
-
-    public long senderId()
-    {
-        return senderId;
+        return id;
     }
 
     public void send(final ByteBuffer buffer)
@@ -94,9 +88,10 @@ public class TcpConnection
         try
         {
             receiveByteBuffer.clear();
+            receiveByteBuffer.putLong(id);
             final int length = channel.read(receiveByteBuffer);
 
-            if (!receiveWriter.write(RECEIVE_TYPE_ID, atomicBuffer, 0, length))
+            if (!receiveWriter.write(TcpManagerEvents.RECEIVED_DATA_TYPE_ID, atomicBuffer, 0, length + BitUtil.SIZE_OF_LONG))
             {
                 throw new IllegalStateException("could not write to receive buffer");
             }
@@ -112,5 +107,15 @@ public class TcpConnection
     public int onWritable()
     {
         return 0;
+    }
+
+    private void informOfNewConnection()
+    {
+        atomicBuffer.putLong(0, id);
+
+        if (!receiveWriter.write(TcpManagerEvents.NEW_CONNECTION_TYPE_ID, atomicBuffer, 0, BitUtil.SIZE_OF_LONG))
+        {
+            throw new IllegalStateException("could not write to receive buffer");
+        }
     }
 }

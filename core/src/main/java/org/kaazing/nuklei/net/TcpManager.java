@@ -18,6 +18,7 @@ package org.kaazing.nuklei.net;
 
 import org.kaazing.nuklei.MessagingNukleus;
 import org.kaazing.nuklei.NioSelectorNukleus;
+import org.kaazing.nuklei.Nuklei;
 import org.kaazing.nuklei.concurrent.AtomicBuffer;
 import org.kaazing.nuklei.concurrent.MpscArrayBuffer;
 import org.kaazing.nuklei.net.command.TcpDetachCmd;
@@ -62,6 +63,25 @@ public class TcpManager
         tcpReceiver = new TcpReceiver(tcpReaderCommandQueue, receiveNioSelectorNukleus);
         tcpSender = new TcpSender(tcpSenderCommandQueue, sendBuffer, sendNioSelectorNukleus);
         localAttachesByIdMap = new HashMap<>();
+    }
+
+    public void launch(final Nuklei nuklei)
+    {
+        nuklei.spinUp(messagingNukleus);
+        tcpReceiver.launch(nuklei);
+        tcpSender.launch(nuklei);
+    }
+
+    public void launch(final Nuklei manageNuklei, final Nuklei receiverNuklei, final Nuklei senderNuklei)
+    {
+        manageNuklei.spinUp(messagingNukleus);
+        tcpReceiver.launch(receiverNuklei);
+        tcpSender.launch(senderNuklei);
+    }
+
+    public void close()
+    {
+        localAttachesByIdMap.forEach((id, acceptor) -> acceptor.close());
     }
 
     private void commandHandler(final Object obj)

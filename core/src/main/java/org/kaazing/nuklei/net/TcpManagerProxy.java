@@ -79,9 +79,9 @@ public class TcpManagerProxy
         }
     }
 
-    public void send(final long connectionId, final AtomicBuffer buffer, final int offset, final int length)
+    public void send(final AtomicBuffer buffer, final int offset, final int length)
     {
-        if (!sendWriter.write((int)connectionId, buffer, offset, length))
+        if (!sendWriter.write(TcpManagerEvents.SEND_DATA_TYPE_ID, buffer, offset, length))
         {
             throw new IllegalStateException("could not write to send buffer");
         }

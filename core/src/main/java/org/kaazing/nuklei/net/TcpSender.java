@@ -16,8 +16,10 @@
 
 package org.kaazing.nuklei.net;
 
+import org.kaazing.nuklei.BitUtil;
 import org.kaazing.nuklei.MessagingNukleus;
 import org.kaazing.nuklei.NioSelectorNukleus;
+import org.kaazing.nuklei.Nuklei;
 import org.kaazing.nuklei.concurrent.AtomicBuffer;
 import org.kaazing.nuklei.concurrent.MpscArrayBuffer;
 
@@ -51,29 +53,39 @@ public class TcpSender
         messagingNukleus = new MessagingNukleus(builder);
         connectionsByIdMap = new HashMap<>();
         sendByteBuffer = sendBuffer.duplicateByteBuffer();
+        sendByteBuffer.clear();
     }
 
-    public void commandHandler(final Object obj)
+    public void launch(final Nuklei nuklei)
+    {
+        nuklei.spinUp(messagingNukleus);
+    }
+
+    private void commandHandler(final Object obj)
     {
         if (obj instanceof TcpConnection)
         {
             final TcpConnection connection = (TcpConnection)obj;
 
-            connectionsByIdMap.put(connection.senderId(), connection);
+            connectionsByIdMap.put(connection.id(), connection);
         }
     }
 
-    public void sendHandler(final int typeId, final AtomicBuffer buffer, final int offset, final int length)
+    private void sendHandler(final int typeId, final AtomicBuffer buffer, final int offset, final int length)
     {
-        // use the typeId to hold the connectionId
-        final TcpConnection connection = connectionsByIdMap.get((long)typeId);
-
-        sendByteBuffer.limit(offset + length);
-        sendByteBuffer.position(offset);
-
-        if (null != connection)
+        if (TcpManagerEvents.SEND_DATA_TYPE_ID == typeId)
         {
-            connection.send(sendByteBuffer);
+            // use the typeId to hold the connectionId
+            final TcpConnection connection = connectionsByIdMap.get(buffer.getLong(offset));
+
+            final int messageOffset = offset + BitUtil.SIZE_OF_LONG;
+            sendByteBuffer.limit(messageOffset + length - BitUtil.SIZE_OF_LONG);
+            sendByteBuffer.position(messageOffset);
+
+            if (null != connection)
+            {
+                connection.send(sendByteBuffer);
+            }
         }
     }
 }

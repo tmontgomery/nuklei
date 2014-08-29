@@ -61,6 +61,7 @@ public class TcpAcceptor
 
                 final ServerSocketChannel acceptor = ServerSocketChannel.open();
                 acceptor.bind(new InetSocketAddress(port));
+                acceptor.configureBlocking(false);
 
                 acceptors[0] = new TcpInterfaceAcceptor(acceptor);
                 selectorNukleus.register(acceptors[0].acceptor(), SelectionKey.OP_ACCEPT, composeAcceptor(acceptors[0]));
@@ -73,6 +74,7 @@ public class TcpAcceptor
                 {
                     final ServerSocketChannel acceptor = ServerSocketChannel.open();
                     acceptor.bind(new InetSocketAddress(interfaces[i], port));
+                    acceptor.configureBlocking(false);
 
                     acceptors[i] = new TcpInterfaceAcceptor(acceptor);
                     selectorNukleus.register(acceptors[i].acceptor(), SelectionKey.OP_ACCEPT, composeAcceptor(acceptors[i]));
@@ -101,9 +103,18 @@ public class TcpAcceptor
 
     private int onAcceptable(final SocketChannel channel)
     {
-        final long senderId = tcpSenderCommandQueue.nextId();
-        final long receiverId = tcpReaderCommandQueue.nextId();
-        final TcpConnection transport = new TcpConnection(channel, receiverId, senderId, receiveBuffer);
+        final long id = tcpSenderCommandQueue.nextId();
+
+        try
+        {
+            channel.configureBlocking(false);
+        }
+        catch (final Exception ex)
+        {
+            ex.printStackTrace();  // TODO: temporary
+        }
+
+        final TcpConnection transport = new TcpConnection(channel, id, receiveBuffer);
 
         // pass transport off to other nukleus' to process
         tcpReaderCommandQueue.write(transport);
